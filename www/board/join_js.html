@@ -1,0 +1,66 @@
+<?php
+$date = date("Y-m-d");
+?>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" href="/board/common.css" rel="stylesheet">
+    <title>회원가입</title>
+</head>
+<body>
+    <form name="frm" action="" method="post">
+        <label>ID : </label>
+        <input type="text" name= "jid" placeholder="영문+숫자"><br><br>
+        <label>Password : </label>
+        <input type="password" name= "jpass1" placeholder="8~20자"><br><br>
+        <label>Password 확인 : </label>
+        <input type="password" name= "jpass2" placeholder="8~20자"><br><br>
+        <label>작성자 : </label>
+        <input type="text" name= "jname" placeholder="이름을 입력해주세요"><br><br>
+        <label>주소 : </label>
+        <input type="text" name= "jaddress" placeholder="주소를 입력해주세요"><br><br>
+        <label>우편번호 : </label>
+        <input type="number" name= "jcode" placeholder="우편번호를 입력해주세요"><br><br>
+        <label>등록일 : </label>
+        <input type="date" name= "jcreate" value="<?=date('Y-m-d')?>" disabled><br><br>
+        <input id="joinBtn" class="btnColor" type="button" value="회원가입">
+        <input type="button" onclick="location.href='/board/index.html'" value="홈 버튼">
+    </form>
+</body>
+</html>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    
+        let joinBtn = document.getElementById('joinBtn');
+
+        joinBtn.addEventListener('click', function() {
+
+            let frm = document.frm,
+                formData = new FormData(frm);
+
+            fetch('/board/join_js.php', {
+                body : formData,
+                method :'post',
+            }).then(function(response){
+                if (response.ok) return response.json();
+                else {
+                    console.log('error');
+                }
+            }).then(function(json) {
+                if (json.err == true) {
+                    alert(json.msg)
+                    location.reload();
+                } else {
+                    alert('회원가입이 완료되었습니다.');
+                    location.href = '/board/login_js.html';
+                }
+            }).catch(function(error){
+                console.log('System Error');
+            });
+
+        });
+
+    });
+</script>

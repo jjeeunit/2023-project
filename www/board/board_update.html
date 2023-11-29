@@ -1,0 +1,63 @@
+<?php 
+ini_set( "display_errors", 1 );
+error_reporting( E_ALL );
+
+session_start();
+
+require_once(__DIR__ . '/Log.php');
+require_once(__DIR__ . '/Pdo.php');
+
+
+$idx = isset($_GET['idx']) ? $_GET['idx'] : '';
+
+$sql = 'select * from board_list where idx = ?';
+$result = DB::conn()->select($sql, [$idx]);
+
+if ($_SESSION['jname'] !== $result['jname']) {
+    exit('<script>alert("본인만 수정가능합니다."); location.href="/board/board_list.html";</script>');
+} 
+?>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" href="/board/common.css" rel="stylesheet">
+    <title>글 수정</title>
+</head>
+<body>
+    <?php if (!empty($_SESSION['jname'])) { ?>
+        <span><b>"<?=$_SESSION['jname']?>"</b>님 반갑습니다.</span>
+        <span><input type="button" onclick="location.href='/board/logout.php'" value="로그아웃"></span>
+        <p></p>
+    <?php } ?>
+    <form action="board_update.php" method="post">
+        <table>
+            <tr>
+                <td>작성자</td>
+                <td><input name="jname" value="<?=$result['jname']?>" disabled></td>
+            </tr>
+            <tr>
+                <td>제목</td>
+                <td><input name ="jtitle" value="<?=$result['jtitle']?>"></td>
+            </tr>
+            <tr>
+                <td>내용</td>
+                <td><textarea name="jcontent" rows="5" cols="50" required><?= $result['jcontent']?></textarea></td>
+            </tr>
+            <tr>
+                <td>수정일</td>
+                <td>
+                    <input type="hidden" name="idx" value="<?=$idx?>">
+                    <input type="date" name="jupdate" value="<?=date('Y-m-d')?>" disabled>
+                </td>
+            </tr>
+        </table>
+        <div class="position">
+            <input class="btnColor" type="submit" value="글수정">
+            <input type="button" onclick="location.href='/board/board_list.html'" value="게시판">
+            <input type="button" onclick="location.href='/board/index.html'" value="홈 버튼">
+        </div>
+    </form>
+</body>
+</html>

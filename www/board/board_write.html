@@ -1,0 +1,52 @@
+<?php 
+session_start();
+
+require_once(__DIR__ . '/common.php'); 
+
+if (empty($_SESSION['jname'])) {
+    exit('<script>alert("로그인 후 작성가능합니다."); location.href="/board/login_js.html";</script>');
+}
+?>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" href="/board/common.css" rel="stylesheet">
+    <title>글쓰기</title>
+</head>
+<body>
+    <?php if (!empty($_SESSION['jname'])) { ?>
+        <span><b>"<?=$_SESSION['jname']?>"</b>님 반갑습니다.</span>
+        <span><input type="button" onclick="location.href='/board/logout.php'" value="로그아웃"></span>
+        <p></p>
+    <?php } ?>
+    <form action="board_write.php" method="post">
+        <table>
+            <tr>
+                <td>작성자</td>
+                <td><input type="text" name="jname" value="<?=$_SESSION['jname']?>" disabled></td>
+            </tr>
+            <tr>
+                <td>제목</td>
+                <td><input type="text" name="jtitle" required></td>
+            </tr>
+            <tr>
+                <td>내용</td>
+                <td><textarea cols="50" rows="5" name="jcontent" required></textarea></td>
+            </tr>
+            <tr>
+                <td>등록일</td>
+                <td>
+                    <input type="date" name="jcreate" value="<?=date('Y-m-d')?>" disabled>
+                </td>
+            </tr>
+        </table>
+        <div class="position">
+            <input class="btnColor" type="submit" value="글쓰기">
+            <input type="button" onclick="location.href='/board/board_list.html'" value="게시판">
+            <input type="button" onclick="location.href='/board/index.html'" value="홈 버튼">
+        </div>
+    </form>
+</body>
+</html>

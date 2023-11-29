@@ -1,0 +1,9 @@
+.btnColor {background-color: rgba(219, 245, 75, 0.763)}
+
+.position_list {margin-left: 300px; margin-top: 20px}
+.position_talk {margin-left: 510px}
+.position_talk2 {margin-left: 150px; margin-top: 20px}
+
+.dynamic_box {display:none; border:1px solid red; position:absolute; width: 500px;height:350px; top: 50%; left:50%; transform:translate(-50%, -50%); background:#fff; text-align:center}
+.dynamic_box2 {width:90%; height: 90%}
+.dynamic_box3 {width:450px; height: 315px}

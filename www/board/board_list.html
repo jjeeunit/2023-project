@@ -1,0 +1,70 @@
+<?php 
+ini_set( "display_errors", 1 );
+error_reporting( E_ALL );
+
+session_start();
+
+require_once(__DIR__ . '/Log.php');
+require_once(__DIR__ . '/Pdo.php');
+require_once(__DIR__ . '/common.php');
+
+?>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" href="/board/common.css" rel="stylesheet">
+    <title>게시판</title>
+    <style>
+        table, th, td {
+            border: 1px solid  rgba(23, 24, 21, 0.763);
+        }
+    </style>
+</head>
+<body>
+    <?php if (!empty($_SESSION['jname'])) { ?>
+        <span><b>"<?=$_SESSION['jname']?>"</b>님 반갑습니다.</span>
+        <span><input type="button" onclick="location.href='/board/logout.php'" value="로그아웃"></span><!--나중에 수정해 $_SERVER['HTTP_HOST'] .$_SERVER['PHP_SELF'] -->
+        <p></p>
+    <?php } ?>
+    <table>
+        <thead>
+            <tr>
+                <th>글번호</th>
+                <th>작성자</th>
+                <th>제목</th>
+                <th>내용</th>
+                <th>등록일</th>
+                <th>수정일</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php 
+            $sql = 'select * from board_list';
+            $result = DB::conn()->selectAll($sql);
+
+            foreach ($result as $key) { ?>
+            <tr>
+                <td><?=$key['idx']?></td>
+                <td><?=$key['jname']?></td>
+                <td><?=$key['jtitle']?></td> <!-- htmlspecialchars($key['jtitle']) -->
+                <td><?=$key['jcontent']?></td> <!-- htmlspecialchars($key['jcontent']) -->
+                <td><?=$key['jcreate']?></td>
+                <td><?=$key['jupdate']?></td>
+                <td><input type="button" onclick="location.href='/board/board_update.html?idx=<?=$key['idx']?>'" value="수정"></td>
+                <td><input type="button" onclick="location.href='/board/board_delete.php?idx=<?=$key['idx']?>'" value="삭제"></td>
+                <td><input type="button" onclick="location.href='/board/board_talk.html?idx=<?=$key['idx']?>'" value="댓글"></td>
+            </tr>
+            <?php } ?>
+        </tbody>
+    </table>
+    <div class="position_list">
+        <input class="btnColor" type="button" onclick="location.href='/board/board_write.html'" value="글쓰기">
+        <input type="button" onclick="location.href='/board/index.html'" value="홈 버튼">
+    </div>
+</body>
+</html>

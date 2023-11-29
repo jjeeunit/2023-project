@@ -1,0 +1,50 @@
+<?php 
+ini_set( "display_errors", 1 );
+error_reporting( E_ALL );
+
+session_start();
+
+require_once(__DIR__ . '/common.php'); 
+?>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>list</title>
+    <style>
+        table, th, td {
+            border: 1px solid  rgba(23, 24, 21, 0.763);
+        }
+    </style>
+</head>
+    <body>
+    <p><b>PHP 개인 프로젝트</b></p>
+    <li><a href="/board/join_js.html">회원가입</a></li>
+    <li><a href="/board/login_js.html">로그인</a></li>
+    <li><a href="/board/board_list.html">게시판</a></li>
+    <p>※ 게시판 진입 시 로그인/로그아웃 UI가 다릅니다. ※</p>
+    <p>비밀번호는 직접 입력 부탁드립니다.</p>
+    <p>마음껏 테스트해 주세요!</p>
+    <p>
+        <table>
+            <tr>
+                <th>아이디</th>
+                <th>비밀번호</th>
+            </tr>
+            <tr>
+                <td>a1</td>
+                <td>a12345678</td>
+            </tr>
+            <tr>
+                <td>a2</td>
+                <td>a23456789</td>
+            </tr>
+            <tr>
+                <td>a3</td>
+                <td>a34567890</td>
+            </tr>
+        </table>
+    </p>
+</body>
+</html>

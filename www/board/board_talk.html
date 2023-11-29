@@ -1,0 +1,303 @@
+<?php 
+ini_set( "display_errors", 1 );
+error_reporting( E_ALL );
+
+session_start(); 
+
+require_once(__DIR__ . '/Log.php');
+require_once(__DIR__ . '/Pdo.php');
+
+
+$idx = isset($_GET['idx']) ? $_GET['idx'] : '';
+
+$sql = 'select * from board_list where idx = ?';
+$result = DB::conn()->select($sql, [$idx]);
+
+
+$sql_talk = 'select * from board_talk where jgroup = ? order by jorder';
+$result_talk = DB::conn()->selectAll($sql_talk, [$idx]);
+
+?>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" href="/board/common.css" rel="stylesheet">
+    <title>댓글</title>
+</head>
+<body>
+    <?php if (!empty($_SESSION['jname'])) { ?>
+        <span><b>"<?=$_SESSION['jname']?>"</b>님 반갑습니다.</span>
+        <span><input type="button" onclick="location.href='/board/logout.php'" value="로그아웃"></span>
+        <p></p>
+    <?php } ?>
+    <table>
+        <tr>
+            <td>작성자</td>
+            <td><input value="<?=$result['jname']?>" disabled></td>
+        </tr>
+        <tr>
+            <td>제목</td>
+            <td><input value="<?=$result['jtitle']?>" disabled></td>
+        </tr>
+        <tr>
+            <td>내용</td>
+            <td><textarea rows="5" cols="50" disabled><?=$result['jcontent']?></textarea></td>
+        </tr>
+    </table>
+    <!-- 로그인 -->
+    <?php if (!empty($_SESSION['jname'])) { ?>
+    <div class="position_talk2">
+        <input type="button" class="btnColor" onclick="location.href='/board/board_list.html'" value="게시판">
+        <input type="button" onclick="location.href='/board/index.html'" value="홈 버튼"><!-- onclick말고 다른 방법 쓰기, click : a태그 쓰기-->
+    </div>
+    <br><br>
+    <table>
+        <?php foreach ($result_talk as $val) { ?>
+        <tr>
+            <td><?=$val['jname']?> : </td>
+            <td><?=$val['jtalk']?></td>
+            <td><?=$val['jcreate']?></td>
+            <td><input class="talkUpdate" type="button" data-idx="<?=$val['idx']?>" data-jtalk="<?=$val['jtalk']?>" value="수정"></td>
+            <td><input type="button" onclick="location.href='/board/board_talk_delete.php?idx=<?=$result['idx']?>&&idx2=<?=$val['idx']?>'" value="삭제"></td>
+            <!-- button 태그 쓰기 -->
+            <td><input class="reTalk" type="button" data-idxlist="<?=$result['idx']?>" data-idxtalk="<?=$val['idx']?>" data-parent="<?=$val['idx']?>" data-depth="<?=$val['jdepth']?>" data-order="<?=$val['jorder']?>" value="대댓글"></td>
+        </tr>
+        <?php } ?>
+    </table>
+    <br><br>
+    <form action="board_talk.php" method="post">
+        <table>
+            <tr>
+                <td><textarea name="jtalk" cols="85" rows="3" placeholder="댓글을 입력하세요." required></textarea></td>
+            </tr>
+        </table>
+        <input type="hidden" name="idx" value="<?=$result['idx']?>">
+        <input type="hidden" name="idx_talk" value="<?=$result_talk['idx']?>">
+        <input type="hidden" name="idx" value="<?=$result['idx']?>">
+        <input type="hidden" name="jorder" value="<?=$val['jorder']?>">
+        <input class="talking position_talk btnColor" type="submit" value="댓글작성">
+    </form>
+    <?php } ?>
+    <!-- 로그아웃 -->
+    <?php if (empty($_SESSION['jname'])) { ?>
+    <div class="position_talk2">
+        <input type="button" onclick="location.href='/board/board_list.html'" value="게시판">
+        <input type="button" onclick="location.href='/board/index.html'" value="홈 버튼">
+    </div>
+    <br><br>
+    <table>
+        <?php foreach ($result_talk as $val) { ?>
+        <tr>
+            <td><?=$val['jname']?> : </td>
+            <td><?=$val['jtalk']?></td>
+            <td><?=$val['jcreate']?></td>
+        </tr>
+        <?php } ?>
+    </table>
+    <br><br>
+    <table>
+        <tr>
+            <td><textarea cols="85" rows="3" placeholder="로그인해주세요." disabled></textarea></td>
+        </tr>
+    </table>
+    <input class="position_talk" type="button" onclick="location.href='/board/board_write.html'" value="  로그인  ">
+    <?php } ?>
+
+    <!-- onclick말고 다른 방법 쓰기, click -->
+    <!-- <script>
+ 
+    document.addEventListener('DOMContentLoaded', function() {
+        const jee = document.getElementById('jee');
+        /*
+        jee.onclick = function (){
+
+            alert()
+        }*/
+        //alert(jee.height)
+
+    });
+
+    
+    </script> -->
+    <!-- onclick말고 다른 방법 쓰기, click -->
+
+    <!-- 수정박스 -->
+    <div id="edit" class="dynamic_box">
+        <textarea name="jtalk2" id="replytext" class="dynamic_box2" placeholder="댓글을 입력하세요."></textarea>
+        <button id="editform" type="button">수정ㅇㅇㅇㅇㅇㅇ</button>
+        <button id="close" type="button">닫기</button>
+    </div>
+
+    <!-- 대댓글박스 -->
+    <div id="reTalkBox" class="dynamic_box">
+        <textarea name="jtalk3" id="reTalkText" class="dynamic_box2" placeholder="대댓글을 입력하세요."></textarea>
+        <button id="reTalkForm" type="button">대댓글</button>
+        <button id="close2" type="button">닫기</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            let talking = document.querySelectorAll('.talking'),
+                talkUpdate = document.querySelectorAll('.talkUpdate'),
+                reTalk = document.querySelectorAll('.reTalk');
+
+
+            //수정버튼
+            talkUpdate.forEach(function(btn) {
+
+                btn.addEventListener('click', function() {
+
+                    const edit = document.getElementById('edit'),
+                        replytext = document.getElementById('replytext'),
+                        close = document.getElementById('close'),
+                        editform = document.getElementById('editform');
+                       
+
+                    el = event.target;
+                    idx = el.getAttribute('data-idx');
+                    talk = el.getAttribute('data-jtalk');
+
+                    edit.style.display = 'block';
+                    replytext.value = talk; 
+
+
+                    //댓글수정
+                    let replyUpdate = talk; //초기화
+                    replytext.addEventListener('change', function() {
+                        replyUpdate = replytext.innerHTML = replytext.value; //replyUpdate 전역변수로 선언
+                    });
+
+                    //닫힘버튼
+                    close.addEventListener('click', function() {
+                        edit.style.display= 'none';
+                    });
+
+                    //수정버튼
+                    editform.addEventListener('click', function() {
+
+                        //fetch
+                        let data = new URLSearchParams();
+                            data.append('idx', idx);
+                            data.append('jtalk', talk);
+                            data.append('jtalk2', replyUpdate);
+
+
+                        fetch('/board/board_talk_update_js.php', {
+                            body : data,
+                            method :'post',
+                        }).then(function(response){
+                            if (response.ok) return response.json();
+                            else {
+                                console.log('error');
+                            }
+                        }).then(function(json) {
+                            if (json.err == true) {
+                                alert(json.msg)
+                                location.reload();
+                            } else {
+                                alert('댓글 수정되었습니다.');
+                                location.href = '/board/board_talk.html?idx=<?=$result['idx']?>';
+                            }
+                        }).catch(function(error){
+                            console.log('System Error');
+                        });
+
+
+
+                    });
+
+
+                });
+            });
+
+
+
+            //대댓글버튼
+            reTalk.forEach(function(re) {
+
+                re.addEventListener('click', function() {
+                   
+                    const reTalkBox = document.getElementById('reTalkBox'),
+                        reTalkText = document.getElementById('reTalkText'),
+                        close2 = document.getElementById('close2'),
+                        reTalkForm = document.getElementById('reTalkForm');
+
+
+                    el = event.target;
+                    idxlist = el.getAttribute('data-idxlist');
+                    idxtalk = el.getAttribute('data-idxtalk');
+                    parent = el.getAttribute('data-parent');
+                    depth = el.getAttribute('data-depth');
+                    order = el.getAttribute('data-order');
+
+
+                    reTalkBox.style.display = 'block';
+
+
+                    //닫힘버튼
+                    close2.addEventListener('click', function() {
+                        reTalkBox.style.display= 'none';
+                    });
+
+
+
+
+                });
+
+            });
+
+            //대댓글버튼
+            reTalkForm.addEventListener('click', function() {
+
+                // 
+                // if (reTalkText.value == '') {
+                //     alert('대댓글을 입력해주세요.');
+                //     return false;
+                // }
+                // 
+
+                //fetch
+                let data = new URLSearchParams();
+                    data.append('idx_list', idxlist);
+                    data.append('idx_talk', idxtalk);
+                    data.append('jtalk3', reTalkText.value);
+                    data.append('jparent', parent);
+                    data.append('jdepth', depth);
+                    data.append('jorder', order);
+
+
+                fetch('/board/board_talk_re_js.php', {
+                    body : data,
+                    method :'post',
+                }).then(function(response){
+                    if (response.ok) return response.json();
+                    else {
+                        console.log('error');
+                    }
+                }).then(function(json) {
+                    if (json.err == true) {
+                        alert(json.msg)
+                        location.reload();
+                    } else {
+                        alert('대댓글이 작성되었습니다.');
+                        location.href = '/board/board_talk.html?idx=<?=$result['idx']?>';
+                    }
+                }).catch(function(error){
+                    console.log('System Error');
+                });
+
+
+
+            });
+
+
+        });
+
+
+    </script>
+
+</body>
+</html>

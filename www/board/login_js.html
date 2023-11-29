@@ -1,0 +1,65 @@
+<?php 
+ini_set( "display_errors", 1 );
+error_reporting( E_ALL );
+
+require_once(__DIR__ . '/Log.php');
+require_once(__DIR__ . '/Pdo.php');
+require_once(__DIR__ . '/common.php'); 
+
+$sql = 'select * from board_join';
+$result = DB::conn()->select($sql);
+?>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" href="/board/common.css" rel="stylesheet">
+    <title>로그인</title>
+</head>
+<body>
+    <form name="frm" action="" method="post">
+        <label>ID : </label>
+        <input type="text" name= "jid" placeholder="영문+숫자"><br><br>
+        <label>Password : </label>
+        <input type="password" name= "jpass1" placeholder="8~20자"><br><br>
+        <input id="loginBtn" class="btnColor" type="button" value="로그인">
+        <input type="button" onclick="location.href='/board/index.html'" value="홈 버튼">
+    </form>
+</body>
+</html>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    let loginBtn = document.getElementById('loginBtn');
+
+    loginBtn.addEventListener('click', function() {
+
+        let frm = document.frm,
+            formData = new FormData(frm);
+
+        fetch('/board/login_js.php', {
+            body : formData,
+            method :'post',
+        }).then(function(response){
+            if (response.ok) return response.json();
+            else {
+                console.log('error');
+            }
+        }).then(function(json) {
+            if (json.err == true) {
+                alert(json.msg)
+                location.reload();
+            }else {
+                alert('로그인 되었습니다.');
+                location.href = '/board/board_list.html';
+            }
+        }).catch(function(error){
+            console.log('System Error');
+        });
+        
+
+    });
+
+});
+</script>
