@@ -20,8 +20,8 @@ class DB
     private function init()
     {
         try {
-            $dns = 'mysql:host=localhost;port=3306;dbname=jeeun93;charset=utf8mb4;collation=utf8mb4_unicode_ci';
-            $this->dbc = new \PDO($dns, 'jeeun93', 'wpdms123!');
+            $dns = 'mysql:host=localhost;port=3306;dbname=*;charset=utf8mb4;collation=utf8mb4_unicode_ci';
+            $this->dbc = new \PDO($dns, '*', '*');
 
             $this->dbc->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $this->dbc->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
